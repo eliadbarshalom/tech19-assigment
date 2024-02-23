@@ -2,13 +2,22 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from IPython import embed
+from torch.utils.data import DataLoader
 
 from CNN_model import SimpleCNN
 from download_data import Loaders
 
 
-def run_training(train_loader, val_loader, model, num_epochs=5):
-
+def run_training(train_loader: DataLoader, val_loader: DataLoader, model: nn.Module, num_epochs=5,
+                 save_model_file=None):
+    '''
+    This function run a model training on a chosen data set
+                                and changes the model it gets.
+    :param train_loader: the train set for the model
+    :param val_loader: the validation set for the model
+    :param model: a pytorch module to train on the data
+    :param num_epochs: number of epochs for the model training
+    '''
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -19,16 +28,13 @@ def run_training(train_loader, val_loader, model, num_epochs=5):
         running_loss = 0.0
         for i, data in enumerate(train_loader, 0):
             inputs, labels = data
-
             # Zero the parameter gradients
             optimizer.zero_grad()
-
             # Forward + backward + optimize
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-
             # Print statistics
             running_loss += loss.item()
             if i % 200 == 199:  # Print every 200 mini-batches
@@ -53,13 +59,15 @@ def run_training(train_loader, val_loader, model, num_epochs=5):
 
         print('[%d] val loss: %.3f, val accuracy: %.3f %%' %
               (epoch + 1, val_loss / len(val_loader), 100 * correct / total))
-
     print('Finished Training')
-
+    if save_model_file is not None:
+        print(f"Saving the model to {save_model_file}")
+        torch.save(model.state_dict(), save_model_file)
+    return
 
 
 if __name__ == '__main__':
     model = SimpleCNN()
-    loader  = Loaders(data_path='/home/eliad/github_repo/tech19-home-assigment/data_dir')
+    loader = Loaders(data_path='/home/eliad/github_repo/tech19-home-assigment/data_dir')
     run_training(train_loader=loader.train_loader, val_loader=loader.val_loader, model=model)
     embed()
