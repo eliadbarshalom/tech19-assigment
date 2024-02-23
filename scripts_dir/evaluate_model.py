@@ -1,9 +1,17 @@
 import torch
+from torch.utils.data import DataLoader
+import torch.nn as nn
 from CNN_model import SimpleCNN
 from download_data import Loaders
 from main import run_training
 
-def compare_test_to_model_results(test_loader, model):
+def compare_test_to_model_results(test_loader:DataLoader, model:nn.Module):
+    '''
+    This functions gives the model results by testing it on a test set
+    :param test_loader: the test set for testing the model
+    :param model: the tested model
+    :return:
+    '''
     correct = 0
     total = 0
     with torch.no_grad():
@@ -18,8 +26,13 @@ def compare_test_to_model_results(test_loader, model):
     return res
 
 
-
+#todo - need to do more generic
 def check_different_epoch_numbers(epoch_numbers):
+    '''
+    
+    :param epoch_numbers:
+    :return:
+    '''
     loader = Loaders(data_path='/home/eliad/github_repo/tech19-home-assigment/data_dir')
     best_res = -1
     for i in epoch_numbers:
