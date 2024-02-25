@@ -1,17 +1,11 @@
 import argparse
-
 import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
 import torch
-from IPython import embed
 from torch.utils.data import DataLoader
-
 from CNN_model import SimpleCNN
 from download_data import Loaders
-
-
-# functions to show an image
 
 
 def imshow(img):
