@@ -1,9 +1,9 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from IPython import embed
 from torch.utils.data import DataLoader
-
 from CNN_model import SimpleCNN
 from download_data import Loaders
 
@@ -63,11 +63,18 @@ def run_training(train_loader: DataLoader, val_loader: DataLoader, model: nn.Mod
     if save_model_file is not None:
         print(f"Saving the model to {save_model_file}")
         torch.save(model.state_dict(), save_model_file)
-    return
+
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_path',type=str, help='the path of the directory of the data sets files')
+    parser.add_argument('--model_file_path', type=str, help='the path of the file to save the model')
+    parser.add_argument('--epoch_number', type=int, help='The number of training loops to do')
+    args = parser.parse_args()
+
     model = SimpleCNN()
-    loader = Loaders(data_path='/home/eliad/github_repo/tech19-home-assigment/data_dir')
-    run_training(train_loader=loader.train_loader, val_loader=loader.val_loader, model=model)
-    embed()
+    loader = Loaders(data_path=args.data_path)
+    run_training(train_loader=loader.train_loader, val_loader=loader.val_loader, model=model,num_epochs=args.epoch_number,
+                 save_model_file=args.model_file_path)
+
