@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import os
 
 class SimpleCNN(nn.Module):
     def __init__(self):
@@ -25,3 +26,8 @@ class SimpleCNN(nn.Module):
         x = torch.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
+    def get_trained_model_from_file(self, file_path):
+        assert os.path.exists(file_path), f"file {file_path} doesn't exist"
+        self.load_state_dict(torch.load(file_path))
+        return self
