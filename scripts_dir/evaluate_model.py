@@ -1,3 +1,6 @@
+import argparse
+import os.path
+
 import torch
 from torch.utils.data import DataLoader
 import torch.nn as nn
@@ -21,9 +24,11 @@ def compare_test_to_model_results(test_loader:DataLoader, model:nn.Module):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+
     res = int(100 * correct / total)
-    print(f'Accuracy of the network on the 10000 test images: {res} %')
-    return res
+
+    print(f'Accuracy of the network : {res} %')
+
 
 
 def check_different_epoch_numbers(epoch_numbers, loader):
@@ -45,5 +50,10 @@ def check_different_epoch_numbers(epoch_numbers, loader):
 
 
 if __name__ == '__main__':
-    loader = Loaders(data_path='/home/eliad/github_repo/tech19-home-assigment/data_dir')
-    check_different_epoch_numbers(range(11, 15),loader)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_path', type=str, help='the path of the directory of the data sets files')
+    parser.add_argument('--model_file_path', type=str, help='the path of the file to load the model from')
+    args = parser.parse_args()
+    loader = Loaders(data_path=args.data_path)
+    model = SimpleCNN().get_trained_model_from_file(args.model_file_path)
+    compare_test_to_model_results(loader.test_loader, model=model)
