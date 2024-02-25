@@ -48,7 +48,7 @@ class Loaders(object):
         :return: torch DataLoader object with the wanted data
         '''
         #todo - if doesnt exist can run the download function
-        assert os.path.exists(file_full_path)
+        assert os.path.exists(file_full_path), f"file {file_full_path} doesn't exist"
         with open(file_full_path, 'rb') as f:
             return pickle.load(f)
 
@@ -62,8 +62,8 @@ def download_CIFAR10_data():
     transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
         transforms.RandomRotation(10),  # Randomly rotate the image within -10 to +10 degrees
-        transforms.RandomResizedCrop(32),  # Randomly crop and resize the image to 32x32
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+        # transforms.RandomResizedCrop(32),  # Randomly crop and resize the image to 32x32
+        # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
         # Randomly adjust brightness, contrast, saturation, and hue
         transforms.ToTensor(),  # Convert PIL image or numpy.ndarray to tensor
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize image data
@@ -72,9 +72,13 @@ def download_CIFAR10_data():
     full_train_set = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=transform)
 
+    simple_transform = transforms.Compose([
+        transforms.ToTensor(),  # Convert PIL image or numpy.ndarray to tensor
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize image data
+    ])
     # Download CIFAR-10 test dataset
     test_set = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                           download=True, transform=transform)
+                                           download=True, transform=simple_transform)
 
     #compute the amount of indexes for a validation set
     #the 0.9 is as thumb rule general estimation and can be changed by tests
