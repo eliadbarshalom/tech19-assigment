@@ -12,7 +12,7 @@ class Loaders(object):
     '''
     This object holds the DataLoders of all the data sets for a model training and evaluation
     '''
-    def __init__(self, train_loader=None, val_loader=None, test_loader=None, data_path=None):
+    def __init__(self, train_loader=None, val_loader=None, test_loader=None, data_path=None, only_test=False):
         '''
         :param train_loader: torch DataLoder object of the train set
         :param val_loader: torch DataLoder object of the validation set
@@ -23,6 +23,7 @@ class Loaders(object):
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
+        self.only_test = only_test
         if data_path is not None:
             self.load_data(data_path=data_path)
 
@@ -31,13 +32,15 @@ class Loaders(object):
         This function load all relevant data from files  in a given directory
         :param data_path: the path of the given directory
         '''
-        #todo: make this function prettier
+        if self.test_loader is None:
+            self.test_loader = self.load_data_file(os.path.join(data_path, 'test_loader.pkl'))
+        if self.only_test:
+            return
         if self.train_loader is None:
             self.train_loader = self.load_data_file(os.path.join(data_path, 'train_loader.pkl'))
         if self.val_loader is None:
             self.val_loader = self.load_data_file(os.path.join(data_path, 'val_loader.pkl'))
-        if self.test_loader is None:
-            self.test_loader = self.load_data_file(os.path.join(data_path, 'test_loader.pkl'))
+
 
 
     @staticmethod
@@ -47,18 +50,33 @@ class Loaders(object):
         :param file_full_path: the path of a given file
         :return: torch DataLoader object with the wanted data
         '''
-        #todo - if doesnt exist can run the download function
         assert os.path.exists(file_full_path), f"file {file_full_path} doesn't exist"
         with open(file_full_path, 'rb') as f:
             return pickle.load(f)
 
 
-def download_CIFAR10_data():
+def download_CIFAR10_data(only_test=True):
     '''
     This function download the files of CIFAR10 if there not downloaded allready, does some manipulation on the data, creates DataLoaders objects of train, validation and test sets and save them to files
     :return: Loaders object with the sets
     '''
     # Define transformations to apply to the dataset
+    simple_transform = transforms.Compose([
+        transforms.ToTensor(),  # Convert PIL image or numpy.ndarray to tensor
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize image data
+    ])
+    # Download CIFAR-10 test dataset
+    test_set = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                            download=True, transform=simple_transform)
+
+    test_loader = DataLoader(test_set, batch_size=64, shuffle=False)
+
+    if only_test:
+        # Save test loader to a file
+        with open('test_loader.pkl', 'wb') as f:
+            pickle.dump(test_loader, f)
+
+    return Loaders(test_loader=test_loader)
     transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
         transforms.RandomRotation(10),  # Randomly rotate the image within -10 to +10 degrees
@@ -68,17 +86,11 @@ def download_CIFAR10_data():
         transforms.ToTensor(),  # Convert PIL image or numpy.ndarray to tensor
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize image data
     ])
-    # Download CIFAR-10 training dataset
-    full_train_set = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                            download=True, transform=transform)
+    if not only_test_set:
+        # Download CIFAR-10 training dataset
+        full_train_set = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                                download=True, transform=transform)
 
-    simple_transform = transforms.Compose([
-        transforms.ToTensor(),  # Convert PIL image or numpy.ndarray to tensor
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize image data
-    ])
-    # Download CIFAR-10 test dataset
-    test_set = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                           download=True, transform=simple_transform)
 
     #compute the amount of indexes for a validation set
     #the 0.9 is as thumb rule general estimation and can be changed by tests
@@ -99,7 +111,6 @@ def download_CIFAR10_data():
 
     train_loader = DataLoader(train_subset, batch_size=64, shuffle=False)
     val_loader = DataLoader(val_subset, batch_size=64, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=64, shuffle=False)
 
 
     # Save train_loader to a file
@@ -110,9 +121,6 @@ def download_CIFAR10_data():
     with open('val_loader.pkl', 'wb') as f:
         pickle.dump(val_loader, f)
 
-    # Save test loader to a file
-    with open('test_loader.pkl', 'wb') as f:
-        pickle.dump(test_loader, f)
 
     return Loaders(train_loader=train_loader, val_loader=val_loader, test_loader=test_loader)
 
@@ -120,5 +128,4 @@ def download_CIFAR10_data():
 
 
 if __name__ == '__main__':
-    #todo argparse on run modes
     download_CIFAR10_data()
