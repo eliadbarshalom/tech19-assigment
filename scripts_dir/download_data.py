@@ -18,7 +18,6 @@ class Loaders(object):
         :param test_loader: torch DataLoder object of the test set (after training evaluation)
         :param data_path: there is an option to initialize this object with path of a directory holding all the data files
         '''
-        assert None not in [train_loader, val_loader, test_loader] or data_path is not None
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
@@ -54,7 +53,7 @@ class Loaders(object):
             return pickle.load(f)
 
 
-def download_CIFAR10_data(only_test=True):
+def download_CIFAR10_data(only_test=False):
     '''
     This function download the files of CIFAR10 if there not downloaded allready, does some manipulation on the data, creates DataLoaders objects of train, validation and test sets and save them to files
     :return: Loaders object with the sets
@@ -69,13 +68,11 @@ def download_CIFAR10_data(only_test=True):
                                             download=True, transform=simple_transform)
 
     test_loader = DataLoader(test_set, batch_size=64, shuffle=False)
-
+    # Save test loader to a file
+    with open('./tech19-assigment/data_dir/test_loader.pkl', 'wb') as f:
+        pickle.dump(test_loader, f)
     if only_test:
-        # Save test loader to a file
-        with open('test_loader.pkl', 'wb') as f:
-            pickle.dump(test_loader, f)
-
-    return Loaders(test_loader=test_loader)
+        return Loaders(test_loader=test_loader)
     transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
         transforms.RandomRotation(10),  # Randomly rotate the image within -10 to +10 degrees
@@ -85,9 +82,9 @@ def download_CIFAR10_data(only_test=True):
         transforms.ToTensor(),  # Convert PIL image or numpy.ndarray to tensor
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize image data
     ])
-    if not only_test_set:
-        # Download CIFAR-10 training dataset
-        full_train_set = torchvision.datasets.CIFAR10(root='./data', train=True,
+
+    # Download CIFAR-10 training dataset
+    full_train_set = torchvision.datasets.CIFAR10(root='./data', train=True,
                                                 download=True, transform=transform)
 
 
@@ -113,11 +110,11 @@ def download_CIFAR10_data(only_test=True):
 
 
     # Save train_loader to a file
-    with open('train_loader.pkl', 'wb') as f:
+    with open('./tech19-assigment/data_dir/train_loader.pkl', 'wb') as f:
         pickle.dump(train_loader, f)
 
     # Save val_loader to a file
-    with open('val_loader.pkl', 'wb') as f:
+    with open('./tech19-assigment/data_dir/val_loader.pkl', 'wb') as f:
         pickle.dump(val_loader, f)
 
 
