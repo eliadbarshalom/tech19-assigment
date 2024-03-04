@@ -23,20 +23,20 @@ pip install the added Pipfile
 In order to test an existing model on the uploaed test set:
 class name can be any of: airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck
 ```
-python ~/tech19-assigment/scripts_dir/evaluate_model.py --data_path ~tech19-assigment/data_dir --model_file_path ~/tech19-assigment/data_dir/model_24_only_2_transformations.pkl --class_name <class from the list>
+python ./tech19-assigment/scripts_dir/evaluate_model.py --data_path tech19-assigment/data_dir --model_file_path tech19-assigment/data_dir/model_final.pkl --class_name <class from the list>
 ```
 
 In order to show model results on random images from the test set (The prediction will be printed in the terminal and images grid will pop):
 ```
-python ~/tech19-assigment/scripts_dir/img_show.py --data_path ~/tech19-assigment/data_dir --model_file_path ~/tech19-assigment/data_dir/model_final.pkl
+python ./tech19-assigment/scripts_dir/img_show.py --data_path tech19-assigment/data_dir --model_file_path tech19-assigment/data_dir/model_final.pkl
 ```
 
 In case you want to download the train and validation data into the data_dir directory:
 ```
-python ~/tech19-assigment/scripts_dir/download_data.py
+python ./tech19-assigment/scripts_dir/download_data.py
 ```
 
 In case you want to train the model on the data set you first need the above download and the run:
 ```
-python ~/tech19-assigment/scripts_dir/main.py --data_path ~tech19-assigment/data_dir --model_file_path <path to save the model file in > --epoch_number <number of epochs for model training>
+python ./tech19-assigment/scripts_dir/main.py --data_path tech19-assigment/data_dir --model_file_path <path to save the model file in > --epoch_number <number of epochs for model training>
 ```
